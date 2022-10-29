@@ -1,9 +1,11 @@
 package postgres
 
 import (
-	"github.com/jmoiron/sqlx"
+	"block/app/article/models"
+	"block/app/article/storage"
+	"database/sql"
 
-	"blog/app/models"
+	"github.com/jmoiron/sqlx"
 )
 
 type articleRepo struct {
@@ -16,16 +18,83 @@ func NewArticleRepo(db *sqlx.DB) storage.ArticleRepoI {
 	}
 }
 
-func (r articleRepo) Create(entity models.ArticleCreatedModel) {
-	insertQuery := `INSERT INTO article(
-title, body, author_id) VALUE (
-	$1,
-	$2, 
-	$3
-)`
+func (r articleRepo) Create(entity models.ArticleCreateModel) (err error) {
+	insertQuery := `INSERT INTO article (
+		title,
+		body,
+		author_id
+	) VALUES (
+		$1,
+		$2,
+		$3
+	)`
 
-	_err = r.db.Exec(insertQuery,
+	_, err = r.db.Exec(insertQuery,
 		entity.Title,
+		entity.Body,
+		entity.AuthorID,
 	)
 
+	return err
+}
+
+func (r articleRepo) GetList(query models.Query) (resp []models.ArticleListItem, err error) {
+	var rows *sql.Rows
+	if len(query.Search) > 0 {
+		rows, err = r.db.Query(
+			`SELECT
+			ar.id, ar.title, ar.body, ar.created_at, ar.updated_at,
+			au.id, au.firstname, au.lastname, au.created_at, au.updated_at
+			FROM article AS ar JOIN author AS au ON ar.author_id = au.id
+			WHERE title ILIKE '%' || $3 || '%'
+			OFFSET $1 LIMIT $2`,
+			query.Offset,
+			query.Limit,
+			query.Search,
+		)
+	} else {
+		rows, err = r.db.Query(
+			`SELECT
+			ar.id, ar.title, ar.body, ar.created_at, ar.updated_at,
+			au.id, au.firstname, au.lastname, au.created_at, au.updated_at
+			FROM article AS ar JOIN author AS au ON ar.author_id = au.id
+			OFFSET $1 LIMIT $2`,
+			query.Offset,
+			query.Limit,
+		)
+	}
+
+	if err != nil {
+		return resp, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var a models.ArticleListItem
+		err = rows.Scan(
+			&a.ID, &a.Title, &a.Body, &a.CreatedAt, &a.UpdatedAt,
+			&a.Author.ID, &a.Author.Firstname, &a.Author.Lastname, &a.Author.CreatedAt, &a.Author.UpdatedAt,
+		)
+		resp = append(resp, a)
+		if err != nil {
+			return resp, err
+		}
+	}
+
+	return resp, err
+}
+
+func (r articleRepo) GetByID(ID int) (resp models.Article, err error) {
+
+	return
+}
+
+func (r articleRepo) Update(entity models.ArticleUpdateModel) (effectedRowsNum int, err error) {
+
+	return
+}
+
+func (r articleRepo) Delete(ID int) (effectedRowsNum int, err error) {
+
+	return
 }
