@@ -19,7 +19,7 @@ type ArticleListItem struct {
 	Content              //Promoted Field
 	Author    Person     `json:"author"` //Nested struct
 	CreatedAt *time.Time `json:"created_at"`
-	Updated   *time.Time `json: "updated_at"`
+	UpdatedAt *time.Time `json: "updated_at"`
 }
 
 type ArticleCreatedModel struct {

@@ -1,9 +1,11 @@
 package postgres
 
 import (
-	"block/app/article/models"
-	"block/app/article/storage"
 	"database/sql"
+
+	"blog/app/models"
+
+	"blog/app/storage"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -18,7 +20,7 @@ func NewArticleRepo(db *sqlx.DB) storage.ArticleRepoI {
 	}
 }
 
-func (r articleRepo) Create(entity models.ArticleCreateModel) (err error) {
+func (r articleRepo) Create(entity models.ArticleCreatedModel) (err error) {
 	insertQuery := `INSERT INTO article (
 		title,
 		body,
@@ -73,7 +75,7 @@ func (r articleRepo) GetList(query models.Query) (resp []models.ArticleListItem,
 		var a models.ArticleListItem
 		err = rows.Scan(
 			&a.ID, &a.Title, &a.Body, &a.CreatedAt, &a.UpdatedAt,
-			&a.Author.ID, &a.Author.Firstname, &a.Author.Lastname, &a.Author.CreatedAt, &a.Author.UpdatedAt,
+			&a.Author.ID, &a.Author.FirstName, &a.Author.LastName, &a.Author.CreatedAt, &a.Author.UpdatedAt,
 		)
 		resp = append(resp, a)
 		if err != nil {
