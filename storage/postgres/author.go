@@ -27,12 +27,12 @@ func (r authorRepo) GetList(query models.Query) (resp []models.Person, err error
 	return
 }
 
-func (r authorRepo) GetByID(ID int) (resp models.Person, err error) {
+func (r authorRepo) GetByID(ID int) (resp models.Article, err error) {
 
 	return
 }
 
-func (r authorRepo) Update(entity models.Person) (effectedRowsNum int, err error) {
+func (r authorRepo) Update(entity models.ArticleUpdateModel) (effectedRowsNum int, err error) {
 
 	return
 }
