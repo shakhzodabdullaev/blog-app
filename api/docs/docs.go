@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/swago/swag"
+	"github.com/swaggo/swag"
 )
 
 var doc = `{
